@@ -1,0 +1,767 @@
+/* Capycal website. Colors from the app icon: the pink squircle, the violet
+   calendar, the capybara's fur and the hot spring it sits in. */
+
+@font-face {
+    font-family: "Inter";
+    font-style: normal;
+    font-weight: 100 900;
+    font-display: swap;
+    src: url("fonts/InterVariable.woff2") format("woff2");
+}
+
+:root {
+    --steam: #f6fbfc;
+    --onsen: #cfeff5;
+    --onsen-deep: #9fdbe6;
+    --ink: #2b2033;
+    --ink-soft: #5d5266;
+    --line: #dce9ec;
+    --violet: #7c3aed;
+    --violet-soft: #efe7fd;
+    --magenta: #b83c8a;
+    --magenta-text: #a8327c;
+    --pink: #f07ec0;
+    --pink-soft: #fce4f2;
+    --yuzu: #f5b82e;
+    --fur: #a87a52;
+    --white: #ffffff;
+    --radius: 14px;
+    --wrap: 1120px;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 24px;
+}
+
+body {
+    margin: 0;
+    background: var(--steam);
+    color: var(--ink);
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-feature-settings: "cv11", "ss03";
+    font-size: 17px;
+    line-height: 1.6;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+a {
+    color: var(--magenta-text);
+    text-underline-offset: 0.18em;
+    text-decoration-thickness: 1px;
+}
+a:hover {
+    text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+    outline: 3px solid var(--violet);
+    outline-offset: 3px;
+    border-radius: 6px;
+}
+
+h1,
+h2,
+h3 {
+    font-optical-sizing: auto;
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.022em;
+    margin: 0;
+    text-wrap: balance;
+}
+h1 {
+    font-size: clamp(2.3rem, 1.5rem + 3vw, 3.5rem);
+    letter-spacing: -0.032em;
+}
+h2 {
+    font-size: clamp(1.9rem, 1.3rem + 2vw, 2.6rem);
+}
+h3 {
+    font-size: 1.25rem;
+    letter-spacing: -0.012em;
+}
+p {
+    margin: 0;
+}
+
+code,
+pre {
+    font-family: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+    font-size: 0.86em;
+}
+:not(pre) > code {
+    background: var(--violet-soft);
+    color: #5b21b6;
+    padding: 0.1em 0.35em;
+    border-radius: 5px;
+}
+
+.wrap {
+    max-width: var(--wrap);
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.skip {
+    position: absolute;
+    left: -999px;
+}
+.skip:focus {
+    left: 16px;
+    top: 16px;
+    z-index: 10;
+    background: var(--white);
+    padding: 8px 12px;
+}
+
+/* Header */
+
+.site-header .wrap {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--ink);
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.015em;
+    text-decoration: none;
+    margin-right: auto;
+}
+.brand img {
+    width: 36px;
+    height: 36px;
+    margin: -4px;
+}
+.site-nav {
+    display: flex;
+    gap: 22px;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+.site-nav a {
+    color: var(--ink);
+    text-decoration: none;
+}
+.site-nav a:hover {
+    color: var(--magenta-text);
+}
+
+/* Buttons */
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 1rem;
+    line-height: 1.2;
+    text-decoration: none;
+    border: 1.5px solid transparent;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.button:hover {
+    transform: translateY(-1px);
+}
+.button-primary {
+    background: linear-gradient(180deg, #e25fac 0%, var(--magenta) 100%);
+    color: var(--white);
+    box-shadow: 0 6px 18px -6px rgba(184, 60, 138, 0.6);
+}
+.button-primary:hover {
+    box-shadow: 0 10px 22px -8px rgba(184, 60, 138, 0.7);
+}
+.button-quiet {
+    background: var(--white);
+    color: var(--ink);
+    border-color: var(--line);
+}
+.button-quiet:hover {
+    border-color: var(--pink);
+}
+.button svg {
+    width: 18px;
+    height: 18px;
+    flex: none;
+}
+
+/* Hero */
+
+.hero {
+    position: relative;
+    padding: 48px 0 104px;
+}
+.hero .wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: 48px;
+    align-items: center;
+}
+.hero h1 {
+    max-width: 13em;
+}
+.lead {
+    margin-top: 22px;
+    font-size: 1.22rem;
+    line-height: 1.55;
+    color: var(--ink-soft);
+    max-width: 32em;
+}
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 32px;
+}
+.hero-note {
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+}
+
+/* The hot spring: an aqua pool with a wavy surface. The capybara sits in it
+   next to the copy and watches a private meeting turn into a busy block */
+.spring {
+    position: relative;
+    align-self: start;
+    margin-top: 64px;
+    padding: 0 28px 36px;
+}
+.spring::before {
+    content: "";
+    position: absolute;
+    inset: 112px 0 0 0;
+    background: var(--onsen);
+    border-radius: 0 0 36px 36px;
+    -webkit-mask: url("wave.svg") top left / 240px 24px repeat-x, linear-gradient(#000, #000) 0 23px / 100% 100% no-repeat;
+    mask: url("wave.svg") top left / 240px 24px repeat-x, linear-gradient(#000, #000) 0 23px / 100% 100% no-repeat;
+}
+.family-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 20px;
+}
+.family-row .calendar {
+    flex: 1;
+}
+.spring-icon {
+    flex: none;
+    width: 116px;
+    height: 116px;
+    margin: 0 -8px -14px 0;
+    transform: rotate(5deg);
+}
+.calendars {
+    position: relative;
+    display: grid;
+    gap: 22px;
+}
+.calendar {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 14px 16px 16px;
+    box-shadow: 0 1px 0 rgba(43, 32, 51, 0.04), 0 14px 32px -16px rgba(43, 32, 51, 0.28);
+}
+.calendar-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 10px;
+}
+.calendar-name::before {
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--dot, var(--violet));
+}
+.calendar-family {
+    --dot: var(--magenta);
+}
+.event {
+    position: relative;
+    display: grid;
+    border-radius: 8px;
+    padding: 9px 12px 10px 15px;
+    background: var(--violet-soft);
+    line-height: 1.35;
+    overflow: hidden;
+}
+.event::before {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: var(--violet);
+}
+.event-time {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+}
+.event-title {
+    font-weight: 650;
+}
+.event-detail {
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+}
+.calendar-family .event {
+    background: var(--pink-soft);
+}
+.calendar-family .event::before {
+    background: var(--magenta);
+}
+.calendar {
+    position: relative;
+}
+.event-titles {
+    display: grid;
+}
+.event-titles > * {
+    grid-area: 1 / 1;
+}
+.event-more {
+    display: grid;
+    grid-template-rows: 0fr;
+}
+.event-more > * {
+    min-height: 0;
+    overflow: hidden;
+}
+
+/* One load sequence: the copy arrives with all details, then everything
+   private steams off and "Busy (work)" stays */
+.calendar-family .private {
+    visibility: hidden;
+}
+@media (prefers-reduced-motion: no-preference) {
+    .calendar-family {
+        animation: arrive 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) 0.4s both;
+    }
+    .calendar-family .private {
+        visibility: visible;
+        animation: steam 1s ease-in 1.6s both;
+    }
+    .calendar-family .event-more .private {
+        animation-delay: 1.8s;
+    }
+    .event-more {
+        animation: collapse 0.5s ease-in-out 2.6s both;
+    }
+    .event-busy {
+        animation: settle 0.7s ease-out 2.2s both;
+    }
+    .wisps path {
+        animation: wisp 2.2s ease-out 1.6s both;
+    }
+    .wisps path:nth-child(2) { animation-delay: 1.85s; }
+    .wisps path:nth-child(3) { animation-delay: 2.1s; }
+}
+@keyframes collapse {
+    from { grid-template-rows: 1fr; }
+}
+@keyframes arrive {
+    from { opacity: 0; transform: translateY(-28px); }
+}
+@keyframes steam {
+    to { opacity: 0; transform: translateY(-22px); filter: blur(6px); }
+}
+@keyframes settle {
+    from { opacity: 0; }
+}
+@keyframes wisp {
+    0% { opacity: 0; stroke-dashoffset: 60; }
+    35% { opacity: 0.9; }
+    100% { opacity: 0; stroke-dashoffset: 0; transform: translateY(-26px); }
+}
+.wisps {
+    position: absolute;
+    left: 40px;
+    top: -56px;
+    width: 160px;
+    height: 70px;
+    pointer-events: none;
+}
+.wisps path {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-dasharray: 60;
+    opacity: 0;
+}
+
+/* Sections */
+
+.section {
+    padding: 104px 0;
+}
+.section-head {
+    max-width: 640px;
+    margin-bottom: 48px;
+}
+.section-head p {
+    margin-top: 16px;
+    font-size: 1.12rem;
+    color: var(--ink-soft);
+}
+
+/* How it works: the same From, Keep, Into pipeline as in Settings */
+
+.how {
+    background: var(--white);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+.how .wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 0.72fr) minmax(0, 1.28fr);
+    gap: 56px;
+    align-items: start;
+}
+.how .section-head {
+    margin-bottom: 36px;
+}
+.steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: step;
+}
+.steps li {
+    position: relative;
+    counter-increment: step;
+    padding: 0 0 30px 56px;
+}
+.steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: -2px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: var(--magenta);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+.steps li:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 16px;
+    top: 38px;
+    bottom: 4px;
+    width: 2px;
+    background: var(--onsen-deep);
+}
+.steps h3 {
+    margin-bottom: 6px;
+}
+.steps p {
+    color: var(--ink-soft);
+}
+.shot {
+    margin: 0;
+}
+.shot img {
+    display: block;
+}
+.shot-window {
+    margin: -24px -28px -40px -28px;
+}
+.shot figcaption {
+    margin-top: 12px;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+}
+
+/* Where it runs */
+
+.platforms {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 40px;
+}
+.platform h3 {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+.platform h3 svg {
+    width: 26px;
+    height: 26px;
+    color: var(--magenta);
+    flex: none;
+}
+.platform p {
+    color: var(--ink-soft);
+}
+
+.sources {
+    margin-top: 72px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 56px;
+    align-items: center;
+}
+.facts {
+    list-style: none;
+    margin: 24px 0 0;
+    padding: 0;
+    display: grid;
+    gap: 18px;
+}
+.facts li {
+    padding-left: 30px;
+    position: relative;
+}
+.facts li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 0.5em;
+    width: 12px;
+    height: 12px;
+    border-radius: 4px;
+    background: var(--yuzu);
+}
+.facts strong {
+    display: block;
+}
+.facts span {
+    color: var(--ink-soft);
+}
+.shot-sheet img {
+    border-radius: 22px;
+    box-shadow: 0 0 0 1px rgba(43, 32, 51, 0.08), 0 24px 48px -24px rgba(43, 32, 51, 0.35);
+}
+
+/* Install */
+
+.install {
+    background: var(--onsen);
+}
+.install-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 40px;
+}
+.install-grid h3 {
+    margin-bottom: 10px;
+}
+.install-grid p {
+    color: var(--ink-soft);
+    font-size: 0.96rem;
+}
+.install-grid p + p,
+.install-grid p + .cmd,
+.install-grid .cmd + p,
+.install-grid .cmd + .cmd {
+    margin-top: 14px;
+}
+.install-grid .button {
+    margin: 4px 0 18px;
+}
+.cmd {
+    position: relative;
+}
+.cmd pre {
+    margin: 0;
+    padding: 12px 44px 12px 14px;
+    background: var(--white);
+    color: var(--ink);
+    border-radius: 10px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+}
+.copy {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--ink-soft);
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+}
+.copy:hover {
+    background: var(--white);
+    color: var(--magenta-text);
+}
+.copy svg {
+    width: 16px;
+    height: 16px;
+}
+.copy[data-done] {
+    color: var(--magenta-text);
+}
+.install-more {
+    margin-top: 40px;
+    color: var(--ink-soft);
+}
+
+/* Sponsor */
+
+.sponsor .wrap {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 40px;
+    align-items: center;
+}
+.sponsor img {
+    width: 120px;
+    height: 120px;
+}
+.sponsor p {
+    margin-top: 12px;
+    color: var(--ink-soft);
+    max-width: 38em;
+}
+.sponsor .hero-actions {
+    margin-top: 24px;
+}
+
+/* Footer */
+
+.site-footer {
+    padding: 40px 0 56px;
+    border-top: 1px solid var(--line);
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+}
+.site-footer .wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 28px;
+    align-items: center;
+}
+.site-footer p {
+    margin-right: auto;
+}
+.site-footer nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+}
+.site-footer a {
+    color: var(--ink-soft);
+}
+.site-footer a:hover {
+    color: var(--magenta-text);
+}
+
+/* Text pages: imprint, 404 */
+
+.page {
+    padding: 48px 0 104px;
+}
+.page .wrap {
+    max-width: 760px;
+}
+.page h1 {
+    font-size: clamp(2.2rem, 1.6rem + 2vw, 3rem);
+    margin-bottom: 32px;
+}
+.page h2 {
+    font-size: 1.5rem;
+    margin: 48px 0 12px;
+}
+.page p + p {
+    margin-top: 14px;
+}
+
+@media (max-width: 920px) {
+    .hero .wrap,
+    .how .wrap,
+    .sources {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .hero {
+        padding-bottom: 72px;
+    }
+    .spring {
+        max-width: 560px;
+        margin-top: 8px;
+    }
+    .platforms,
+    .install-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 36px;
+    }
+    .shot-window {
+        margin: -16px -18px -28px;
+    }
+}
+
+@media (max-width: 640px) {
+    body {
+        font-size: 16px;
+    }
+    .wrap {
+        padding: 0 16px;
+    }
+    .site-header .wrap {
+        flex-wrap: wrap;
+        gap: 10px 24px;
+    }
+    .site-nav {
+        gap: 18px;
+    }
+    .spring {
+        padding: 0 12px 24px;
+    }
+    .spring::before {
+        border-radius: 0 0 24px 24px;
+    }
+    .spring-icon {
+        width: 76px;
+        height: 76px;
+        margin: 0 -4px -8px -6px;
+    }
+    .section {
+        padding: 72px 0;
+    }
+    .shot-window {
+        margin: -10px -12px -18px;
+    }
+    .sponsor .wrap {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+    .sponsor img {
+        width: 88px;
+        height: 88px;
+    }
+}

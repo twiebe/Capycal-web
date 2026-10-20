@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capycal - calendar sync that keeps a secret</title>
+<meta name="description" content="Capycal copies events from one calendar into another and leaves out what the other side doesn't need to know. Menu bar app for the Mac, tray app for Linux, CLI for servers. Free and open source.">
+<meta property="og:title" content="Capycal">
+<meta property="og:description" content="Calendar sync that knows how to keep a secret.">
+<meta property="og:image" content="https://capycal.app/assets/icon-256.png">
+<meta property="og:url" content="https://capycal.app/">
+<meta name="theme-color" content="#f6fbfc">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="assets/favicon.png" type="image/png">
+<link rel="preload" href="assets/fonts/InterVariable.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="./"><img src="assets/icon.svg" alt="" width="36" height="36">Capycal</a>
+    <nav class="site-nav" aria-label="Main">
+      <a href="#how">How it works</a>
+      <a href="#install">Install</a>
+      <a href="docs/">Docs</a>
+      <a href="https://github.com/twiebe/capycal">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <div class="hero-text">
+        <h1>Calendar sync that knows how to keep a secret</h1>
+        <p class="lead">Capycal copies events from one calendar into another and leaves out what the other side doesn't need to know. Your colleagues know when you're free. Your dentist appointment stays between you and your dentist.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="https://github.com/twiebe/capycal/releases/latest">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0l-4-4m4 4l4-4M4 16h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Download for Mac
+          </a>
+          <a class="button button-quiet" href="#install">Linux and command line</a>
+        </div>
+        <p class="hero-note">Free and open source. macOS 14 or later on Apple silicon, any Linux.</p>
+      </div>
+
+      <div class="spring" aria-label="Example: a meeting in the Work calendar is copied into the Family calendar as Busy (work)" role="img">
+        <div class="calendars" aria-hidden="true">
+          <div class="calendar">
+            <div class="calendar-name">Work</div>
+            <div class="event">
+              <span class="event-time">Tue 10:00 - 11:00</span>
+              <span class="event-title">Board review: Q3 financials</span>
+              <span class="event-detail">Room 3, agenda: cash flow, hiring plan</span>
+            </div>
+          </div>
+              <div class="family-row">
+          <div class="calendar calendar-family">
+            <svg class="wisps" viewBox="0 0 160 70"><path d="M30 66c-10-12 10-18 0-30s8-18 2-28"/><path d="M80 66c-10-12 10-18 0-30s8-18 2-28"/><path d="M130 66c-10-12 10-18 0-30s8-18 2-28"/></svg>
+            <div class="calendar-name">Family</div>
+            <div class="event">
+              <span class="event-time">Tue 10:00 - 11:00</span>
+              <span class="event-titles">
+                <span class="event-title private">Board review: Q3 financials</span>
+                <span class="event-title event-busy">Busy (work)</span>
+              </span>
+              <span class="event-more"><span class="event-detail private">Room 3, agenda: cash flow, hiring plan</span></span>
+            </div>
+          </div>
+          <img class="spring-icon" src="assets/icon.svg" alt="" width="128" height="128">
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section how" id="how">
+    <div class="wrap">
+      <div>
+        <div class="section-head">
+          <h2>One sync, three steps</h2>
+          <p>A sync reads one calendar and writes copies into another, every few minutes. You decide what the copies show.</p>
+        </div>
+        <ol class="steps">
+          <li>
+            <h3>From</h3>
+            <p>The calendar to copy: your work calendar on any CalDAV server, a calendar in Calendar.app or an iCal feed such as Google's secret address.</p>
+          </li>
+          <li>
+            <h3>Keep</h3>
+            <p>Times always come along. Title, notes, location and reminders only if you say so. Transforms rename events, add travel time before and after, or skip weekends and all-day events.</p>
+          </li>
+          <li>
+            <h3>Into</h3>
+            <p>The calendar that gets the copies. Capycal updates them when a meeting moves and removes them when it's cancelled. It never touches events it didn't create.</p>
+          </li>
+        </ol>
+      </div>
+      <figure class="shot shot-window">
+        <img src="assets/shots/settings.webp" width="1818" height="1248" alt="Capycal Settings on the Mac: the sync work-to-family copies events from work into family every 5 minutes, keeps only the time, sets the title to Busy (work) and adds 15 minutes before and after. A preview shows Design review from 09:00 to 10:00 becoming Busy (work) from 08:45 to 10:15." loading="lazy">
+      </figure>
+    </div>
+  </section>
+
+  <section class="section" id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Runs where your calendars are</h2>
+        <p>The same sync engine in three forms. Pick the one that fits, or move between them: they all read the same config file.</p>
+      </div>
+      <div class="platforms">
+        <div class="platform">
+          <h3><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="19" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 8h19M8 21h8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>Mac menu bar app</h3>
+          <p>Lives in the menu bar, shows each sync's status and sets up new syncs in a few clicks, with a live preview of what a copy will look like.</p>
+        </div>
+        <div class="platform">
+          <h3><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="3.5" width="19" height="17" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 8h19" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="6" cy="5.8" r="0.9" fill="currentColor"/><circle cx="9" cy="5.8" r="0.9" fill="currentColor"/></svg>Linux desktop app</h3>
+          <p>The same Settings and tray icon for GNOME, KDE and other desktops, built with GTK 4 and libadwaita.</p>
+        </div>
+        <div class="platform">
+          <h3><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="4" width="19" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M7 10l3 2.5L7 15M12.5 15H17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Command line</h3>
+          <p>A single binary for servers and home labs: systemd and launchd services, Docker, config reload on change, status at a glance.</p>
+        </div>
+      </div>
+
+      <div class="sources">
+        <figure class="shot shot-sheet">
+          <img src="assets/shots/wizard.webp" width="1120" height="1280" alt="The new sync assistant asks what the copies should show: Busy blocker (only the time, titled Busy (Work)), Title and time, Everything, or Custom. Each choice shows a preview of the copy." loading="lazy">
+        </figure>
+        <div>
+          <h2>Works with the calendars you have</h2>
+          <ul class="facts">
+            <li><strong>Any CalDAV server</strong><span>Nextcloud, Radicale or any other server that speaks CalDAV, in any combination with the others.</span></li>
+            <li><strong>Calendar.app on the Mac</strong><span>Every calendar you added to the Mac's Calendar app, including Exchange, Google and iCloud. No OAuth setup, no Exchange passwords in a config file.</span></li>
+            <li><strong>Calendar feeds</strong><span>Read-only .ics links as a source, like Google's secret address or a published Outlook.com calendar.</span></li>
+            <li><strong>Nothing in between</strong><span>Capycal runs on your computer and talks only to your calendars. No account, no cloud service, no tracking. Passwords stay in the Keychain or your keyring.</span></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section install" id="install">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Install</h2>
+        <p>Every download is on the <a href="https://github.com/twiebe/capycal/releases/latest">releases page</a>. The <a href="docs/installation.html">installation guide</a> has the details.</p>
+      </div>
+      <div class="install-grid">
+        <div>
+          <h3>Mac</h3>
+          <p>The menu bar app with the command line tool inside. Apple silicon, macOS 14 or later.</p>
+          <a class="button button-primary" href="https://github.com/twiebe/capycal/releases/latest">
+            <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v10m0 0l-4-4m4 4l4-4M4 16h12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Download .dmg
+          </a>
+          <p>Or with Homebrew:</p>
+          <div class="cmd"><pre><code>brew install --cask twiebe/capycal/capycal-app</code></pre></div>
+          <p>The app is not notarized yet. Before the first start, run:</p>
+          <div class="cmd"><pre><code>xattr -dr com.apple.quarantine /Applications/Capycal.app</code></pre></div>
+        </div>
+        <div>
+          <h3>Linux desktop</h3>
+          <p>The tray app <code>capycal-gtk</code> as .deb and .rpm for x86_64 and arm64. Needs GTK 4.14 or later.</p>
+          <a class="button button-quiet" href="https://github.com/twiebe/capycal/releases/latest">Get .deb or .rpm</a>
+          <p>On a desktop without a tray, it opens as a small window instead.</p>
+        </div>
+        <div>
+          <h3>Command line</h3>
+          <p>Homebrew on macOS and Linux:</p>
+          <div class="cmd"><pre><code>brew install twiebe/capycal/capycal</code></pre></div>
+          <p>Arch Linux, from the AUR:</p>
+          <div class="cmd"><pre><code>yay -S capycal-bin</code></pre></div>
+          <p>Debian, Fedora and others: .deb, .rpm or a static binary from the <a href="https://github.com/twiebe/capycal/releases/latest">releases page</a>. Then start with the <a href="docs/cli/quick-start.html">quick start</a>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section sponsor" id="sponsor">
+    <div class="wrap">
+      <img src="assets/icon.svg" alt="" width="120" height="120">
+      <div>
+        <h2>Free, open source, made in spare time</h2>
+        <p>Capycal is free software under the GPL and has no paid version. If it saves you time, a sponsorship helps keep it going.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="https://github.com/sponsors/twiebe">Sponsor on GitHub</a>
+          <a class="button button-quiet" href="https://ko-fi.com/thomaswiebe">Support on Ko-fi</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Capycal, by Thomas Wiebe, <a href="https://heimblick.net">heimblick.net</a>.</p>
+    <nav aria-label="Footer">
+      <a href="docs/">Documentation</a>
+      <a href="https://github.com/twiebe/capycal">Source code</a>
+      <a href="https://github.com/twiebe/capycal/releases">Releases</a>
+      <a href="imprint.html">Imprint and privacy</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="assets/copy.js" defer></script>
+</body>
+</html>
