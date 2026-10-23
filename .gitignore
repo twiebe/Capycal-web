@@ -1,2 +1,4 @@
 _site/
 .tools/
+.releases/
+.test-repos/
