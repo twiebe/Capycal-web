@@ -1,12 +1,15 @@
 name: Pages
 
-# The site with the Capycal book under /docs. The book comes from the main
-# branch of twiebe/capycal, whose docs workflow triggers this one.
+# The site with the Capycal book under /docs and the APT and RPM repositories
+# under /packages. The book comes from the main branch of twiebe/capycal,
+# whose docs workflow triggers this one; its release workflow does too, so
+# the repositories pick up a new release. Every run rebuilds both, since a
+# deploy replaces the whole site.
 on:
   push:
     branches: [main]
   repository_dispatch:
-    types: [docs]
+    types: [docs, release]
   workflow_dispatch:
 
 permissions:
@@ -24,6 +27,10 @@ env:
 jobs:
   build:
     runs-on: ubuntu-24.04
+    env:
+      # Private signing key of the package repositories, ASCII armored, no
+      # passphrase
+      PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -49,8 +56,25 @@ jobs:
         run: |
           mkdir _site
           cp -r site/. _site/
-          rm -rf _site/.git _site/.github _site/README.md
+          rm -rf _site/.git _site/.github _site/.gitignore _site/README.md _site/Makefile _site/scripts
           mdbook build capycal/docs -d "$PWD/_site/docs"
+
+      - name: Package repositories
+        if: env.PACKAGES_GPG_KEY != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y apt-utils createrepo-c rpm
+          export GNUPGHOME="$RUNNER_TEMP/gnupg"
+          mkdir -m 700 "$GNUPGHOME"
+          gpg --batch --import <<<"$PACKAGES_GPG_KEY"
+          site/scripts/fetch-releases.sh "$RUNNER_TEMP/releases" 3
+          site/scripts/build-repos.sh "$RUNNER_TEMP/releases" _site
+
+      - name: No package repositories
+        if: env.PACKAGES_GPG_KEY == ''
+        run: echo "::warning::PACKAGES_GPG_KEY is not set, the site goes out without packages/"
 
       - uses: actions/upload-pages-artifact@v5
         with:
