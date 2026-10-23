@@ -9,7 +9,7 @@ for (const cmd of document.querySelectorAll(".cmd")) {
     button.setAttribute("aria-label", "Copy command");
     button.innerHTML = icon;
     button.addEventListener("click", async () => {
-        await navigator.clipboard.writeText(cmd.querySelector("code").textContent);
+        await navigator.clipboard.writeText(cmd.querySelector("code").textContent.trimEnd());
         button.innerHTML = done;
         button.dataset.done = "";
         button.setAttribute("aria-label", "Copied");

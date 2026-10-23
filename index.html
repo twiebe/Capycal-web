@@ -165,15 +165,21 @@
           <h3>Linux desktop</h3>
           <p>The tray app <code>capycal-app</code> as .deb and .rpm for x86_64 and arm64. Needs GTK 4.14 or later.</p>
           <a class="button button-quiet" href="https://github.com/twiebe/capycal/releases/latest">Get .deb or .rpm</a>
-          <p>On a desktop without a tray, it opens as a small window instead.</p>
+          <p>Or from the <a href="docs/installation.html#linux-packages">package repository</a>, which keeps it up to date. On a desktop without a tray, it opens as a small window instead.</p>
         </div>
         <div>
           <h3>Command line</h3>
           <p>Homebrew on macOS and Linux:</p>
           <div class="cmd"><pre><code>brew install twiebe/capycal/capycal</code></pre></div>
+          <p>Debian and Ubuntu, from the package repository:</p>
+          <div class="cmd"><pre><code><span class="line">sudo curl <span>-fsSLo /etc/apt/keyrings/capycal.asc</span> <span>https://capycal.app/packages/capycal.asc</span>
+</span><span class="line">echo <span>"deb [signed-by=/etc/apt/keyrings/capycal.asc]</span> <span>https://capycal.app/packages/apt</span> <span>stable main"</span> | <span>sudo tee /etc/apt/sources.list.d/capycal.list</span>
+</span><span class="line"><span>sudo apt update</span> &amp;&amp; <span>sudo apt install capycal</span>
+</span></code></pre></div>
           <p>Docker, with your <code>capycal.toml</code> in the current directory:</p>
-          <div class="cmd"><pre><code><span>docker run -d</span> <span>--name capycal</span> <span>-e TZ=Europe/Berlin</span> <span>-v "$PWD":/etc/capycal:ro</span> <span>-v capycal-state:/var/lib/capycal</span> <span>ghcr.io/twiebe/capycal</span></code></pre></div>
-          <p>Debian, Fedora and others: .deb, .rpm or a static binary from the <a href="https://github.com/twiebe/capycal/releases/latest">releases page</a>. Then start with the <a href="docs/cli/quick-start.html">quick start</a>, or the <a href="docs/cli/server.html#docker">Docker guide</a>.</p>
+          <div class="cmd"><pre><code><span class="line"><span>docker run -d</span> <span>--name capycal</span> <span>-e TZ=Europe/Berlin</span> <span>-v "$PWD":/etc/capycal:ro</span> <span>-v capycal-state:/var/lib/capycal</span> <span>ghcr.io/twiebe/capycal</span>
+</span></code></pre></div>
+          <p>Fedora and others: the <a href="docs/installation.html#linux-packages">installation guide</a> has the package repository for dnf and static binaries. Then start with the <a href="docs/cli/quick-start.html">quick start</a>, or the <a href="docs/cli/server.html#docker">Docker guide</a>.</p>
         </div>
       </div>
     </div>

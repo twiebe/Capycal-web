@@ -606,6 +606,13 @@ pre {
 .cmd pre span {
     white-space: nowrap;
 }
+/* One command per line, a wrapped one indented under its start */
+.cmd pre .line {
+    display: block;
+    white-space: normal;
+    padding-left: 2ch;
+    text-indent: -2ch;
+}
 .copy {
     position: absolute;
     top: 6px;
