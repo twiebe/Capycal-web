@@ -49,8 +49,13 @@ mv "$out/Release" dists/stable/Release
 gpg --batch --yes --clearsign -o dists/stable/InRelease dists/stable/Release
 gpg --batch --yes --armor --detach-sign -o dists/stable/Release.gpg dists/stable/Release
 
-# RPM: locations are <tag>/<file>, relative to the release downloads
+# RPM: locations are <tag>/<file>, relative to the release downloads. The
+# metadata takes its times from the newest package, so a run without a new
+# release writes the same repomd.xml: a cached signature still matches it.
+# gzip, since older dnf and zypper cannot read zstd.
+revision=$(find "$pkgs" -name '*.rpm' -printf '%T@\n' | sort -n | tail -n1 | cut -d. -f1)
 createrepo_c --quiet --baseurl "https://github.com/$repo/releases/download/" \
+    --general-compress-type gz --revision "$revision" --set-timestamp-to-revision \
     --outputdir "$out/rpm" "$pkgs"
 gpg --batch --yes --armor --detach-sign "$out/rpm/repodata/repomd.xml"
 cat >"$out/rpm/capycal.repo" <<EOF

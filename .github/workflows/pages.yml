@@ -28,9 +28,8 @@ jobs:
   build:
     runs-on: ubuntu-24.04
     env:
-      # Private signing key of the package repositories, ASCII armored, no
-      # passphrase
-      PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
+      # Only the step that signs gets the key itself
+      HAS_PACKAGES_KEY: ${{ secrets.PACKAGES_GPG_KEY != '' }}
     steps:
       - uses: actions/checkout@v7
         with:
@@ -60,8 +59,11 @@ jobs:
           mdbook build capycal/docs -d "$PWD/_site/docs"
 
       - name: Package repositories
-        if: env.PACKAGES_GPG_KEY != ''
+        if: env.HAS_PACKAGES_KEY == 'true'
         env:
+          # Private signing key of the package repositories, ASCII armored, no
+          # passphrase
+          PACKAGES_GPG_KEY: ${{ secrets.PACKAGES_GPG_KEY }}
           GH_TOKEN: ${{ github.token }}
         run: |
           sudo apt-get update
@@ -73,7 +75,7 @@ jobs:
           site/scripts/build-repos.sh "$RUNNER_TEMP/releases" _site
 
       - name: No package repositories
-        if: env.PACKAGES_GPG_KEY == ''
+        if: env.HAS_PACKAGES_KEY != 'true'
         run: echo "::warning::PACKAGES_GPG_KEY is not set, the site goes out without packages/"
 
       - uses: actions/upload-pages-artifact@v5

@@ -172,7 +172,8 @@
           <p>Homebrew on macOS and Linux:</p>
           <div class="cmd"><pre><code>brew install twiebe/capycal/capycal</code></pre></div>
           <p>Debian and Ubuntu, from the package repository:</p>
-          <div class="cmd"><pre><code><span class="line">sudo curl <span>-fsSLo /etc/apt/keyrings/capycal.asc</span> <span>https://capycal.app/packages/capycal.asc</span>
+          <div class="cmd"><pre><code><span class="line"><span>sudo mkdir -p /etc/apt/keyrings</span>
+</span><span class="line">sudo curl <span>-fsSLo /etc/apt/keyrings/capycal.asc</span> <span>https://capycal.app/packages/capycal.asc</span>
 </span><span class="line">echo <span>"deb [signed-by=/etc/apt/keyrings/capycal.asc]</span> <span>https://capycal.app/packages/apt</span> <span>stable main"</span> | <span>sudo tee /etc/apt/sources.list.d/capycal.list</span>
 </span><span class="line"><span>sudo apt update</span> &amp;&amp; <span>sudo apt install capycal</span>
 </span></code></pre></div>
