@@ -163,7 +163,7 @@
         </div>
         <div>
           <h3>Linux desktop</h3>
-          <p>The tray app <code>capycal-gtk</code> as .deb and .rpm for x86_64 and arm64. Needs GTK 4.14 or later.</p>
+          <p>The tray app <code>capycal-app</code> as .deb and .rpm for x86_64 and arm64. Needs GTK 4.14 or later.</p>
           <a class="button button-quiet" href="https://github.com/twiebe/capycal/releases/latest">Get .deb or .rpm</a>
           <p>On a desktop without a tray, it opens as a small window instead.</p>
         </div>
@@ -171,9 +171,13 @@
           <h3>Command line</h3>
           <p>Homebrew on macOS and Linux:</p>
           <div class="cmd"><pre><code>brew install twiebe/capycal/capycal</code></pre></div>
-          <p>Arch Linux, from the AUR:</p>
-          <div class="cmd"><pre><code>yay -S capycal-bin</code></pre></div>
-          <p>Debian, Fedora and others: .deb, .rpm or a static binary from the <a href="https://github.com/twiebe/capycal/releases/latest">releases page</a>. Then start with the <a href="docs/cli/quick-start.html">quick start</a>.</p>
+          <p>Docker, with your <code>capycal.toml</code> in the current directory:</p>
+          <div class="cmd"><pre><code>docker run -d --name capycal \
+  -e TZ=Europe/Berlin \
+  -v "$PWD":/etc/capycal:ro \
+  -v capycal-state:/var/lib/capycal \
+  ghcr.io/twiebe/capycal</code></pre></div>
+          <p>Debian, Fedora and others: .deb, .rpm or a static binary from the <a href="https://github.com/twiebe/capycal/releases/latest">releases page</a>. Then start with the <a href="docs/cli/quick-start.html">quick start</a>, or the <a href="docs/cli/server.html#docker">Docker guide</a>.</p>
         </div>
       </div>
     </div>
