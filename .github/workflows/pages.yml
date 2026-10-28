@@ -67,7 +67,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           sudo apt-get update
-          sudo apt-get install -y apt-utils createrepo-c rpm
+          sudo apt-get install -y apt-utils createrepo-c rpm appstream appstream-compose
           export GNUPGHOME="$RUNNER_TEMP/gnupg"
           mkdir -m 700 "$GNUPGHOME"
           gpg --batch --import <<<"$PACKAGES_GPG_KEY"

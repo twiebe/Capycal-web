@@ -13,6 +13,8 @@ work=$PWD/.test-repos
 net=capycal-test-repos
 url=http://repo:8000/packages
 count=${COUNT:-3}
+# Until a release ships AppStream metadata, it comes from this checkout
+capycal=$(realpath "${CAPYCAL:-../capycal}")
 platform=(${PLATFORM:+--platform "$PLATFORM"})
 
 cleanup() {
@@ -29,13 +31,24 @@ mkdir -p "$work"
 # tampered InRelease and repomd.xml goes to /bad, which must be refused.
 echo "== Building the repositories"
 docker run --rm -e GH_TOKEN -e COUNT="$count" -e PACKAGES_URL="$url" \
-    -v "$PWD/scripts":/scripts:ro -v "$work":/work ubuntu:24.04 bash -euc '
+    -v "$PWD/scripts":/scripts:ro -v "$work":/work \
+    -v "$capycal/packaging/linux/app.capycal.metainfo.xml":/metainfo.xml:ro ubuntu:24.04 bash -euc '
         export DEBIAN_FRONTEND=noninteractive
         apt-get update -qq
-        apt-get install -qq -y --no-install-recommends apt-utils createrepo-c rpm gnupg curl jq ca-certificates >/dev/null
+        apt-get install -qq -y --no-install-recommends apt-utils createrepo-c rpm appstream appstream-compose gnupg curl jq ca-certificates >/dev/null
         export GNUPGHOME=$(mktemp -d)
         gpg --batch --quiet --passphrase "" --quick-gen-key "Capycal Test <test@capycal.app>" rsa4096 sign 1d
         /scripts/fetch-releases.sh /work/releases "$COUNT"
+        newest=$(ls /work/releases | sort -V | tail -n1)
+        for deb in /work/releases/$newest/capycal-app_*.deb; do
+            dpkg-deb -c "$deb" | grep -q metainfo && continue
+            rm -rf /tmp/deb
+            dpkg-deb -R "$deb" /tmp/deb
+            mkdir -p /tmp/deb/usr/share/metainfo
+            sed -e "s/@VERSION@/${newest#v}/" -e "s/@DATE@/$(date -u +%F)/" /metainfo.xml \
+                >/tmp/deb/usr/share/metainfo/app.capycal.metainfo.xml
+            dpkg-deb -b /tmp/deb "$deb" >/dev/null
+        done
         /scripts/build-repos.sh /work/releases /work/first
         /scripts/build-repos.sh /work/releases /work/site
         cmp /work/first/packages/rpm/repodata/repomd.xml /work/site/packages/rpm/repodata/repomd.xml
@@ -63,6 +76,8 @@ for image in debian:trixie ubuntu:24.04; do
     echo "== $image ${PLATFORM:-}"
     docker run --rm "${platform[@]}" --network "$net" -v "$work/site/packages/capycal.asc":/capycal.asc:ro \
         "$image" bash -euc '
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get update -qq && apt-get install -qq -y appstream >/dev/null
             mkdir -p /etc/apt/keyrings
             cp /capycal.asc /etc/apt/keyrings/capycal.asc
             echo "deb [signed-by=/etc/apt/keyrings/capycal.asc] http://repo:8000/bad/packages/apt stable main" >/etc/apt/sources.list.d/capycal.list
@@ -73,6 +88,7 @@ for image in debian:trixie ubuntu:24.04; do
             echo "deb [signed-by=/etc/apt/keyrings/capycal.asc] '"$url"'/apt stable main" >/etc/apt/sources.list.d/capycal.list
             apt-get update >/tmp/update.log 2>&1 || { cat /tmp/update.log; exit 1; }
             if grep -E "^(W|E):" /tmp/update.log; then exit 1; fi
+            appstreamcli get app.capycal | grep -E "^(Name|Package):"
             apt-get install -qq -y capycal >/dev/null
             capycal --version | grep -F "'"${newest#v}"'"
             apt-get install -qq -y --allow-downgrades capycal='"${oldest#v}"'-1 >/dev/null
@@ -90,7 +106,7 @@ docker run --rm "${platform[@]}" --network "$net" fedora:42 bash -euc '
     fi
     rm /etc/yum.repos.d/capycal-bad.repo
     curl -fsSLo /etc/yum.repos.d/capycal.repo '"$url"'/rpm/capycal.repo
-    dnf install -q -y capycal
+    dnf install -q -y capycal >/dev/null
     capycal --version | grep -F "'"${newest#v}"'"
     dnf repoquery -q capycal-app | grep -F "capycal-app-0:'"${newest#v}"'"'
 
