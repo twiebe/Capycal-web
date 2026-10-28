@@ -6,7 +6,7 @@ The website of [Capycal](https://github.com/twiebe/capycal): plain HTML and CSS,
 - Inter (`assets/fonts`, SIL Open Font License) is served from the site itself, nothing loads from other servers
 - The screenshots in `assets/shots` come from the macOS app in light mode
 - The book rebuilds on every push here, on `workflow_dispatch` and when the docs workflow of `twiebe/capycal` sends a `docs` dispatch
-- `/packages` holds the APT and RPM repositories, rebuilt on every run from the newest three releases of `twiebe/capycal` (`scripts/fetch-releases.sh`, `scripts/build-repos.sh`) and signed with the secret `PACKAGES_GPG_KEY`; without it the site goes out without them. The debs are copied into the site, the RPM metadata points at the release downloads. Its release workflow sends a `release` dispatch once a release is out
+- `/packages` holds the APT and RPM repositories, rebuilt on every run from the newest three releases of `twiebe/capycal` (`scripts/fetch-releases.sh`, `scripts/build-repos.sh`) and signed with the secret `PACKAGES_GPG_KEY`; without it the site goes out without them. The debs are copied into the site, the RPM metadata points at the release downloads and takes only rpms the release workflow signed with the same key. Both carry an AppStream catalog of the desktop app. Its release workflow sends a `release` dispatch once a release is out
 
 To test the repositories: `make test-repos` (only Docker) builds them with a throwaway key and installs from them in Debian, Ubuntu and Fedora containers.
 

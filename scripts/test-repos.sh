@@ -4,8 +4,9 @@
 # containers. Needs only Docker. PLATFORM=linux/amd64 tests the other
 # architecture (emulated).
 #
-# The debs and the repository metadata come from a local server, the rpms
-# from the GitHub releases, as for users.
+# Everything comes from a local server, the rpms too: the test signs those
+# of the newest release with packaging/linux/sign-rpms.sh of the Capycal
+# checkout, as the release workflow does.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -13,7 +14,7 @@ work=$PWD/.test-repos
 net=capycal-test-repos
 url=http://repo:8000/packages
 count=${COUNT:-3}
-# Until a release ships AppStream metadata, it comes from this checkout
+# The rpm signing script, and until a release ships AppStream metadata, that
 capycal=$(realpath "${CAPYCAL:-../capycal}")
 platform=(${PLATFORM:+--platform "$PLATFORM"})
 
@@ -27,19 +28,23 @@ rm -rf "$work"
 mkdir -p "$work"
 
 # The same tools as the Pages workflow on ubuntu-24.04. The build runs twice:
-# without a new release, the RPM metadata must not change. A copy with a
-# tampered InRelease and repomd.xml goes to /bad, which must be refused.
+# without a new release, the RPM metadata must not change. /bad gets a
+# tampered InRelease and an RPM repository of unsigned rpms, which must be
+# refused.
 echo "== Building the repositories"
-docker run --rm -e GH_TOKEN -e COUNT="$count" -e PACKAGES_URL="$url" \
+docker run --rm -e GH_TOKEN -e COUNT="$count" -e PACKAGES_URL="$url" -e RPM_BASEURL=http://repo:8000/releases/ \
     -v "$PWD/scripts":/scripts:ro -v "$work":/work \
+    -v "$capycal/packaging/linux/sign-rpms.sh":/sign-rpms.sh:ro \
     -v "$capycal/packaging/linux/app.capycal.metainfo.xml":/metainfo.xml:ro ubuntu:24.04 bash -euc '
         export DEBIAN_FRONTEND=noninteractive
         apt-get update -qq
-        apt-get install -qq -y --no-install-recommends apt-utils createrepo-c rpm appstream appstream-compose gnupg curl jq ca-certificates >/dev/null
+        apt-get install -qq -y --no-install-recommends apt-utils createrepo-c rpm appstream appstream-compose gnupg curl jq perl ca-certificates >/dev/null
         export GNUPGHOME=$(mktemp -d)
         gpg --batch --quiet --passphrase "" --quick-gen-key "Capycal Test <test@capycal.app>" rsa4096 sign 1d
         /scripts/fetch-releases.sh /work/releases "$COUNT"
         newest=$(ls /work/releases | sort -V | tail -n1)
+        oldest=$(ls /work/releases | sort -V | head -n1)
+        PACKAGES_GPG_KEY=$(gpg --armor --export-secret-keys) /sign-rpms.sh /work/releases/$newest
         for deb in /work/releases/$newest/capycal-app_*.deb; do
             dpkg-deb -c "$deb" | grep -q metainfo && continue
             rm -rf /tmp/deb
@@ -53,11 +58,15 @@ docker run --rm -e GH_TOKEN -e COUNT="$count" -e PACKAGES_URL="$url" \
         /scripts/build-repos.sh /work/releases /work/site
         cmp /work/first/packages/rpm/repodata/repomd.xml /work/site/packages/rpm/repodata/repomd.xml
         rm -rf /work/first
+        cp -al /work/releases /work/site/releases
         mkdir /work/site/bad
         cp -r /work/site/packages /work/site/bad/
         sed -i "s/^Origin: Capycal/Origin: Capycat/" /work/site/bad/packages/apt/dists/stable/InRelease
-        sed -i "s|<revision>|<revision>1|" /work/site/bad/packages/rpm/repodata/repomd.xml
-        sed -i "s|/packages/|/bad/packages/|; s/^\[capycal\]/[capycal-bad]/" /work/site/bad/packages/rpm/capycal.repo
+        rm -rf /work/site/bad/packages/rpm/repodata /tmp/unsigned
+        mkdir /tmp/unsigned
+        ln -s /work/releases/$oldest /tmp/unsigned/
+        createrepo_c --quiet --baseurl http://repo:8000/releases/ -o /work/site/bad/packages/rpm /tmp/unsigned
+        sed -i "s|/packages/rpm|/bad/packages/rpm|; s/^\[capycal\]/[capycal-bad]/" /work/site/bad/packages/rpm/capycal.repo
         chown -R '"$(id -u):$(id -g)"' /work'
 
 newest=$(ls "$work/releases" | sort -V | tail -n1)
@@ -99,15 +108,27 @@ done
 echo "== fedora:42 ${PLATFORM:-}"
 docker run --rm "${platform[@]}" --network "$net" fedora:42 bash -euc '
     curl -fsSLo /etc/yum.repos.d/capycal-bad.repo http://repo:8000/bad/packages/rpm/capycal.repo
-    # dnf skips a repository with a bad signature, so makecache still succeeds
-    dnf makecache -y --repo capycal-bad >/tmp/makecache.log 2>&1 || true
-    if ! grep -q "Bad PGP signature" /tmp/makecache.log || dnf repoquery -q --repo capycal-bad capycal | grep -q capycal; then
-        cat /tmp/makecache.log; echo "a tampered repomd.xml was accepted"; exit 1
+    if dnf install -y --repo capycal-bad capycal >/tmp/install.log 2>&1; then
+        cat /tmp/install.log; echo "an unsigned rpm was installed"; exit 1
     fi
     rm /etc/yum.repos.d/capycal-bad.repo
     curl -fsSLo /etc/yum.repos.d/capycal.repo '"$url"'/rpm/capycal.repo
     dnf install -q -y capycal >/dev/null
     capycal --version | grep -F "'"${newest#v}"'"
-    dnf repoquery -q capycal-app | grep -F "capycal-app-0:'"${newest#v}"'"'
+    dnf repoquery -q capycal-app | grep -F "capycal-app-0:'"${newest#v}"'"
+    if dnf repoquery -q capycal | grep -F "'"${oldest#v}"'"; then
+        echo "an unsigned rpm is in the repository"; exit 1
+    fi
+    # Software centers go through PackageKit, which needs D-Bus and polkit
+    dnf install -q -y PackageKit polkit dbus-daemon appstream >/dev/null
+    mkdir -p /run/dbus
+    dbus-daemon --system --fork
+    /usr/lib/polkit-1/polkitd --no-debug >/dev/null 2>&1 &
+    /usr/libexec/packagekitd >/tmp/packagekit.log 2>&1 &
+    sleep 3
+    pkcon refresh force >/dev/null 2>&1 || { cat /tmp/packagekit.log; exit 1; }
+    if grep -i "skipping refresh of capycal" /tmp/packagekit.log; then exit 1; fi
+    appstreamcli get app.capycal 2>/dev/null | grep -E "^(Name|Package):"
+    find /var/cache/swcatalog/icons -name app.capycal.png | grep -q .'
 
 echo "== All installs passed"

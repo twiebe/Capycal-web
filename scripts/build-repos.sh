@@ -14,6 +14,8 @@ pkgs=$(realpath "$1")
 out=$(realpath -m "$2/packages")
 url=${PACKAGES_URL:-https://capycal.app/packages}
 repo=${CAPYCAL_REPO:-twiebe/capycal}
+# Where dnf downloads the rpms: <tag>/<file> below it
+rpm_baseurl=${RPM_BASEURL:-https://github.com/$repo/releases/download/}
 # Pages sites may hold 1 GB in all
 max_mb=500
 
@@ -87,19 +89,37 @@ mv "$out/Release" dists/stable/Release
 gpg --batch --yes --clearsign -o dists/stable/InRelease dists/stable/Release
 gpg --batch --yes --armor --detach-sign -o dists/stable/Release.gpg dists/stable/Release
 
-# RPM: locations are <tag>/<file>, relative to the release downloads. The
-# metadata takes its times from the newest package, so a run without a new
-# release writes the same repomd.xml: a cached signature still matches it.
-# gzip, since older dnf and zypper cannot read zstd.
+# RPM: dnf and PackageKit check each rpm against our key (gpgcheck), so only
+# rpms signed with it go in; older releases have none. The metadata is not
+# checked: PackageKit cannot import a key for that and would skip the
+# repository. Locations are <tag>/<file>, relative to the release downloads.
+# The metadata takes its times from the newest package, so a run without a
+# new release writes the same repomd.xml. gzip, since older dnf and zypper
+# cannot read zstd.
+rpmdb=$(mktemp -d)
+signed=$(mktemp -d)
+rpmkeys --dbpath "$rpmdb" --import "$out/capycal.asc"
+for rpm in "${rpms[@]}"; do
+    if rpmkeys --dbpath "$rpmdb" --checksig "$rpm" 2>/dev/null | grep -q ': digests signatures OK$'; then
+        tag=$(basename "$(dirname "$rpm")")
+        mkdir -p "$signed/$tag"
+        ln -s "$rpm" "$signed/$tag/"
+    fi
+done
+echo "Signed rpms: $(find "$signed" -name '*.rpm' | wc -l) of ${#rpms[@]}"
 revision=$(find "$pkgs" -name '*.rpm' -printf '%T@\n' | sort -n | tail -n1 | cut -d. -f1)
-createrepo_c --quiet --baseurl "https://github.com/$repo/releases/download/" \
+createrepo_c --quiet --baseurl "$rpm_baseurl" \
     --general-compress-type gz --revision "$revision" --set-timestamp-to-revision \
-    --outputdir "$out/rpm" "$pkgs"
+    --outputdir "$out/rpm" "$signed"
+rm -rf "$rpmdb" "$signed"
 if [ -n "$catalog" ]; then
     gzip -9n <"$catalog/capycal.xml" >"$catalog/appstream.xml.gz"
     tar_icons 64x64 "$catalog/appstream-icons-64x64"
     tar_icons 128x128 "$catalog/appstream-icons-128x128"
-    for type in appstream appstream-icons-64x64 appstream-icons-128x128; do
+    # PackageKit's libdnf only reads this one: every size in a folder
+    (cd "$icons" && tar --sort=name --mtime=@0 --owner=0 --group=0 --numeric-owner -cf - -- *) |
+        gzip -9n >"$catalog/appstream-icons.tar.gz"
+    for type in appstream appstream-icons appstream-icons-64x64 appstream-icons-128x128; do
         modifyrepo_c --mdtype="$type" --no-compress "$catalog/$type".*.gz "$out/rpm/repodata" >/dev/null
     done
     # modifyrepo_c stamps the current time
@@ -112,8 +132,8 @@ cat >"$out/rpm/capycal.repo" <<EOF
 name=Capycal
 baseurl=$url/rpm
 enabled=1
-gpgcheck=0
-repo_gpgcheck=1
+gpgcheck=1
+repo_gpgcheck=0
 gpgkey=$url/capycal.asc
 EOF
 
