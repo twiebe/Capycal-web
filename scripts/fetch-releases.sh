@@ -1,5 +1,5 @@
 #!/bin/bash
-# Download the .deb and .rpm assets of the newest published releases of
+# Download the .deb, .rpm and .flatpak assets of the newest published releases of
 # Capycal into <out-dir>/<tag>/, keeping their upload time as the file time.
 # A release without both kinds (made by hand) is skipped.
 #
@@ -18,7 +18,7 @@ fi
 releases=$("${curl[@]}" "https://api.github.com/repos/$repo/releases?per_page=30")
 selected=$(jq -r --argjson count "$count" '
     [.[] | select((.draft or .prerelease) | not)
-         | {tag: .tag_name, urls: [.assets[].browser_download_url | select(test("\\.(deb|rpm)$"))]}
+         | {tag: .tag_name, urls: [.assets[].browser_download_url | select(test("\\.(deb|rpm|flatpak)$"))]}
          | select(any(.urls[]; endswith(".deb")) and any(.urls[]; endswith(".rpm")))]
     | .[:$count][] | .tag as $tag | .urls[] | "\($tag) \(.)"' <<<"$releases")
 

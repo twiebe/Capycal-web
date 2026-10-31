@@ -6,7 +6,9 @@
 #
 # Everything comes from a local server, the rpms too: the test signs those
 # of the newest release with packaging/linux/sign-rpms.sh of the Capycal
-# checkout, as the release workflow does.
+# checkout, as the release workflow does. Until the releases carry Flatpak
+# bundles, the one `make dist-flatpak` left in the checkout's dist/ stands in
+# for the newest release's (the Flatpak test is skipped without it).
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -35,10 +37,11 @@ echo "== Building the repositories"
 docker run --rm -e GH_TOKEN -e COUNT="$count" -e PACKAGES_URL="$url" -e RPM_BASEURL=http://repo:8000/releases/ \
     -v "$PWD/scripts":/scripts:ro -v "$work":/work \
     -v "$capycal/packaging/linux/sign-rpms.sh":/sign-rpms.sh:ro \
-    -v "$capycal/packaging/linux/app.capycal.metainfo.xml":/metainfo.xml:ro ubuntu:24.04 bash -euc '
+    -v "$capycal/packaging/linux/app.capycal.metainfo.xml":/metainfo.xml:ro \
+    -v "$capycal/dist":/dist:ro ubuntu:24.04 bash -euc '
         export DEBIAN_FRONTEND=noninteractive
         apt-get update -qq
-        apt-get install -qq -y --no-install-recommends apt-utils createrepo-c rpm appstream appstream-compose gnupg curl jq perl ca-certificates >/dev/null
+        apt-get install -qq -y --no-install-recommends apt-utils createrepo-c rpm appstream appstream-compose flatpak ostree gnupg curl jq perl ca-certificates >/dev/null
         export GNUPGHOME=$(mktemp -d)
         gpg --batch --quiet --passphrase "" --quick-gen-key "Capycal Test <test@capycal.app>" rsa4096 sign 1d
         /scripts/fetch-releases.sh /work/releases "$COUNT"
@@ -54,9 +57,28 @@ docker run --rm -e GH_TOKEN -e COUNT="$count" -e PACKAGES_URL="$url" -e RPM_BASE
                 >/tmp/deb/usr/share/metainfo/app.capycal.metainfo.xml
             dpkg-deb -b /tmp/deb "$deb" >/dev/null
         done
+        arch=$(flatpak --default-arch)
+        ref=app/app.capycal.Capycal/$arch/stable
+        bundle=$(ls /dist/capycal-app-v*-$arch.flatpak 2>/dev/null | tail -n1 || true)
+        if ! ls /work/releases/*/*.flatpak >/dev/null 2>&1 && [ -n "$bundle" ]; then
+            cp "$bundle" /work/releases/$newest/
+        fi
         /scripts/build-repos.sh /work/releases /work/first
         /scripts/build-repos.sh /work/releases /work/site
         cmp /work/first/packages/rpm/repodata/repomd.xml /work/site/packages/rpm/repodata/repomd.xml
+        if [ -d /work/site/packages/flatpak ]; then
+            # The same bundles give the same commit, so clients see no update
+            [ "$(ostree --repo=/work/first/packages/flatpak rev-parse $ref)" = "$(ostree --repo=/work/site/packages/flatpak rev-parse $ref)" ]
+            # The next release: a new commit of the same app in a newer release
+            ostree init --mode=archive-z2 --repo=/tmp/next
+            flatpak build-import-bundle /tmp/next /work/releases/$newest/*.flatpak >/dev/null
+            flatpak build-commit-from --src-ref=$ref --subject=next /tmp/next $ref >/dev/null
+            mkdir -p /work/releases-next/v99.0.0
+            cp -al /work/releases/* /work/releases-next/
+            flatpak build-bundle --arch=$arch /tmp/next /work/releases-next/v99.0.0/capycal-app-v99.0.0-$arch.flatpak app.capycal.Capycal stable
+            /scripts/build-repos.sh /work/releases-next /work/next
+            ostree --repo=/tmp/next rev-parse $ref >/work/next-commit
+        fi
         rm -rf /work/first
         cp -al /work/releases /work/site/releases
         mkdir /work/site/bad
@@ -130,5 +152,22 @@ docker run --rm "${platform[@]}" --network "$net" fedora:42 bash -euc '
     if grep -i "skipping refresh of capycal" /tmp/packagekit.log; then exit 1; fi
     appstreamcli get app.capycal 2>/dev/null | grep -E "^(Name|Package):"
     find /var/cache/swcatalog/icons -name app.capycal.png | grep -q .'
+
+if [ -d "$work/site/packages/flatpak" ]; then
+    echo "== Flatpak ${PLATFORM:-}"
+    # Installs only the app (--no-deps): the GNOME runtime comes from Flathub
+    docker run -d --name capycal-test-flatpak "${platform[@]}" --network "$net" --privileged fedora:42 sleep infinity >/dev/null
+    trap 'docker rm -f capycal-test-flatpak >/dev/null 2>&1 || true; cleanup' EXIT
+    flatpak_run() { docker exec capycal-test-flatpak bash -euc "$1"; }
+    flatpak_run 'dnf install -q -y flatpak >/dev/null
+        flatpak install --user --noninteractive --no-deps --from '"$url"'/app.capycal.Capycal.flatpakref >/dev/null
+        flatpak info --user app.capycal.Capycal | grep -E "^ *(Version|Commit|Origin):"
+        flatpak remote-info --user capycal app.capycal.Capycal >/dev/null'
+    # A new release on the server: flatpak update moves to its commit
+    mv "$work/site/packages" "$work/packages-old"
+    mv "$work/next/packages" "$work/site/packages"
+    flatpak_run 'flatpak update --user --noninteractive --no-deps app.capycal.Capycal >/dev/null
+        flatpak info --user app.capycal.Capycal | grep -F "'"$(cut -c1-12 "$work/next-commit")"'"'
+fi
 
 echo "== All installs passed"

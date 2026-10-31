@@ -137,6 +137,49 @@ repo_gpgcheck=0
 gpgkey=$url/capycal.asc
 EOF
 
+# Flatpak: the bundles of the releases go into one OSTree repository, oldest
+# first, so the branch ends at the newest. Importing keeps the commits the
+# bundles carry, so a run without a new release changes nothing a client
+# would update to. Software centers install from the .flatpakref; bundles
+# installed by hand name the repository too (build-flatpak.sh).
+bundles=()
+for tag in $(ls "$pkgs" | sort -V); do
+    bundles+=("$pkgs/$tag"/*.flatpak)
+done
+if [ ${#bundles[@]} -gt 0 ]; then
+    key=$(gpg --batch --list-secret-keys --with-colons | awk -F: '/^fpr:/ {print $10; exit}')
+    ostree init --mode=archive-z2 --repo="$out/flatpak"
+    for bundle in "${bundles[@]}"; do
+        flatpak build-import-bundle --gpg-sign="$key" "$out/flatpak" "$bundle" >/dev/null
+    done
+    flatpak build-update-repo --gpg-sign="$key" --title=Capycal --default-branch=stable \
+        --generate-static-deltas "$out/flatpak" >/dev/null
+    gpgkey=$(gpg --batch --export "$key" | base64 -w0)
+    cat >"$out/capycal.flatpakrepo" <<EOF
+[Flatpak Repo]
+Title=Capycal
+Url=$url/flatpak/
+Homepage=https://capycal.app/
+Comment=Calendar sync for Linux, macOS and servers
+GPGKey=$gpgkey
+EOF
+    cat >"$out/app.capycal.Capycal.flatpakref" <<EOF
+[Flatpak Ref]
+Title=Capycal
+Name=app.capycal.Capycal
+Branch=stable
+Url=$url/flatpak/
+SuggestRemoteName=capycal
+Homepage=https://capycal.app/
+IsRuntime=false
+RuntimeRepo=https://dl.flathub.org/repo/flathub.flatpakrepo
+GPGKey=$gpgkey
+EOF
+    echo "Flatpak bundles: ${#bundles[@]}"
+else
+    echo "No Flatpak bundles in the releases, the site goes out without a Flatpak repository"
+fi
+
 size_mb=$(du -sm "$out" | cut -f1)
 echo "Package repositories: $size_mb MB in $out"
 if [ "$size_mb" -gt "$max_mb" ]; then
