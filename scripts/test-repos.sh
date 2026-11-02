@@ -106,7 +106,7 @@ done
 for image in debian:trixie ubuntu:24.04; do
     echo "== $image ${PLATFORM:-}"
     docker run --rm "${platform[@]}" --network "$net" -v "$work/site/packages/capycal.asc":/capycal.asc:ro \
-        "$image" bash -euc '
+        -e IMAGE="$image" "$image" bash -euc '
             export DEBIAN_FRONTEND=noninteractive
             apt-get update -qq && apt-get install -qq -y appstream >/dev/null
             mkdir -p /etc/apt/keyrings
@@ -124,7 +124,10 @@ for image in debian:trixie ubuntu:24.04; do
             capycal --version | grep -F "'"${newest#v}"'"
             apt-get install -qq -y --allow-downgrades capycal='"${oldest#v}"'-1 >/dev/null
             capycal --version | grep -F "'"${oldest#v}"'"
-            apt-get install -qq -y --simulate capycal-app >/dev/null'
+            # The desktop app after 0.3.1 needs libadwaita 1.7: Debian 13, not Ubuntu 24.04
+            if [ "$IMAGE" = debian:trixie ]; then
+                apt-get install -qq -y --simulate capycal-app >/dev/null
+            fi'
 done
 
 echo "== fedora:42 ${PLATFORM:-}"
