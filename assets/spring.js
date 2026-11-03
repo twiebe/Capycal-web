@@ -35,6 +35,7 @@ const kinds = ["event-time", "event-title", "event-detail"];
 
 const spring = document.querySelector(".spring");
 const motion = matchMedia("(prefers-reduced-motion: no-preference)");
+let shown = 0;
 
 function span(className, text) {
     const element = document.createElement("span");
@@ -80,9 +81,39 @@ function play(scene) {
     spring.classList.add("play");
 }
 
+// The spring keeps the size of its tallest scene, so that only the copy
+// shrinks and the water and the capybara stay where they are
+function reserve() {
+    if (!motion.matches) {
+        return;
+    }
+    const source = spring.querySelector(".calendar-source");
+    const row = spring.querySelector(".family-row");
+    source.style.minHeight = row.style.minHeight = "";
+    spring.classList.add("measure");
+    let sourceHeight = 0;
+    let rowHeight = 0;
+    for (const scene of scenes) {
+        render(scene);
+        sourceHeight = Math.max(sourceHeight, source.getBoundingClientRect().height);
+        rowHeight = Math.max(rowHeight, row.getBoundingClientRect().height);
+    }
+    spring.classList.remove("measure");
+    source.style.minHeight = `${Math.ceil(sourceHeight)}px`;
+    row.style.minHeight = `${Math.ceil(rowHeight)}px`;
+    play(scenes[shown]);
+}
+
 if (spring) {
     spring.classList.add("play");
-    let shown = 0;
+    let width = 0;
+    new ResizeObserver(() => {
+        if (spring.offsetWidth !== width) {
+            width = spring.offsetWidth;
+            reserve();
+        }
+    }).observe(spring);
+    document.fonts.ready.then(reserve);
     setInterval(() => {
         if (document.hidden || !motion.matches) {
             return;

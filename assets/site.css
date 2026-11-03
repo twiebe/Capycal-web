@@ -263,6 +263,7 @@ pre {
 }
 .family-row .calendar {
     flex: 1;
+    align-self: flex-start;
 }
 .spring-icon {
     flex: none;
@@ -370,6 +371,10 @@ pre {
    or with reduced motion the first scene shows how it ends */
 .calendar-family .private {
     visibility: hidden;
+}
+.spring.measure .event-more {
+    grid-template-rows: 1fr;
+    animation: none;
 }
 .spring .event,
 .spring .calendar-name,
