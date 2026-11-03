@@ -241,11 +241,18 @@ pre {
 /* The hot spring: an aqua pool with a wavy surface. The capybara sits in it
    next to the copy and watches what each sync keeps: a scene per use case,
    played in a loop by spring.js */
-.spring {
-    position: relative;
+.hero-visual {
     align-self: start;
     margin-top: 64px;
+}
+.spring {
+    position: relative;
     padding: 0 28px 36px;
+}
+.spring-note {
+    margin: 14px 28px 0;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
 }
 .spring::before {
     content: "";
@@ -753,7 +760,7 @@ pre {
     .hero {
         padding-bottom: 72px;
     }
-    .spring {
+    .hero-visual {
         max-width: 560px;
         margin-top: 8px;
     }
@@ -783,6 +790,9 @@ pre {
     }
     .spring {
         padding: 0 12px 24px;
+    }
+    .spring-note {
+        margin: 12px 12px 0;
     }
     .spring::before {
         border-radius: 0 0 24px 24px;
