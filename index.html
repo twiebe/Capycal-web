@@ -46,9 +46,9 @@
         <p class="hero-note">Free and open source. macOS 14 or later on Apple silicon, any Linux.</p>
       </div>
 
-      <div class="spring" aria-label="Example: a meeting in the Work calendar is copied into the Family calendar as Busy (work)" role="img">
+      <div class="spring" aria-label="Examples of syncs: a work meeting copied into the family calendar as Busy (work), a dentist appointment copied into the work calendar as Busy with travel time, a weekend football match left out, a book club copied with its title only" role="img">
         <div class="calendars" aria-hidden="true">
-          <div class="calendar">
+          <div class="calendar calendar-source">
             <div class="calendar-name">Work</div>
             <div class="event">
               <span class="event-time">Tue 10:00 - 11:00</span>
@@ -56,20 +56,20 @@
               <span class="event-detail">Room 3, agenda: cash flow, hiring plan</span>
             </div>
           </div>
-              <div class="family-row">
-          <div class="calendar calendar-family">
-            <svg class="wisps" viewBox="0 0 160 70"><path d="M30 66c-10-12 10-18 0-30s8-18 2-28"/><path d="M80 66c-10-12 10-18 0-30s8-18 2-28"/><path d="M130 66c-10-12 10-18 0-30s8-18 2-28"/></svg>
-            <div class="calendar-name">Family</div>
-            <div class="event">
-              <span class="event-time">Tue 10:00 - 11:00</span>
-              <span class="event-titles">
-                <span class="event-title private">Board review: Q3 financials</span>
-                <span class="event-title event-busy">Busy (work)</span>
-              </span>
-              <span class="event-more"><span class="event-detail private">Room 3, agenda: cash flow, hiring plan</span></span>
+          <div class="family-row">
+            <div class="calendar calendar-family">
+              <svg class="wisps" viewBox="0 0 160 70"><path d="M30 66c-10-12 10-18 0-30s8-18 2-28"/><path d="M80 66c-10-12 10-18 0-30s8-18 2-28"/><path d="M130 66c-10-12 10-18 0-30s8-18 2-28"/></svg>
+              <div class="calendar-name"><span>Family</span><span class="rule">Busy blocker</span></div>
+              <div class="event">
+                <span class="event-swap"><span class="event-time">Tue 10:00 - 11:00</span></span>
+                <span class="event-swap">
+                  <span class="event-title private">Board review: Q3 financials</span>
+                  <span class="event-title event-new">Busy (work)</span>
+                </span>
+                <span class="event-more"><span class="event-detail private">Room 3, agenda: cash flow, hiring plan</span></span>
+              </div>
             </div>
-          </div>
-          <img class="spring-icon" src="assets/icon.svg" alt="" width="128" height="128">
+            <img class="spring-icon" src="assets/icon.svg" alt="" width="128" height="128">
           </div>
         </div>
       </div>
@@ -216,5 +216,6 @@
 </footer>
 
 <script src="assets/copy.js" defer></script>
+<script src="assets/spring.js" defer></script>
 </body>
 </html>
