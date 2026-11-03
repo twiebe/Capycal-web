@@ -163,9 +163,11 @@
         </div>
         <div>
           <h3>Linux desktop</h3>
-          <p>The tray app <code>capycal-app</code> as .deb and .rpm for x86_64 and arm64. Needs GTK 4.14 or later.</p>
+          <p>The tray app <code>capycal-app</code> as .deb and .rpm for x86_64 and arm64. Needs GTK 4.18 and libadwaita 1.7: Debian 13, Ubuntu 25.04, Fedora 42 or later.</p>
           <a class="button button-quiet" href="https://github.com/twiebe/capycal/releases/latest">Get .deb or .rpm</a>
           <p>Or from the <a href="docs/installation.html#linux-packages">package repository</a>, which keeps it up to date. On a desktop without a tray, it opens as a small window instead.</p>
+          <p>On older or immutable systems, such as Ubuntu 24.04 or Fedora Silverblue, as a Flatpak:</p>
+          <div class="cmd"><pre><code>flatpak install --user <span>https://capycal.app/packages/app.capycal.Capycal.flatpakref</span></code></pre></div>
         </div>
         <div>
           <h3>Command line</h3>
